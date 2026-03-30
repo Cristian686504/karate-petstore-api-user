@@ -11,8 +11,12 @@ pom.xml                                              # Configuración Maven + Ka
 mvnw / mvnw.cmd                                      # Maven Wrapper
 src/test/java/karate-config.js                        # Configuración global (baseUrl, paths, apiKey)
 src/test/java/logback-test.xml                        # Configuración de logging
-src/test/java/template/user/UserRunner.java           # Runner JUnit5 del dominio user
-src/test/java/template/user/user-crud.feature         # Feature orquestador (llama a los 5 sub-features)
+src/test/java/template/user/UserRunner.java           # Runner general — ejecuta todas las features del dominio
+src/test/java/template/user/CreateUserRunner.java     # Runner individual — create-user
+src/test/java/template/user/GetUserRunner.java        # Runner individual — get-user
+src/test/java/template/user/UpdateUserRunner.java     # Runner individual — update-user
+src/test/java/template/user/GetUpdatedUserRunner.java # Runner individual — get-updated-user
+src/test/java/template/user/DeleteUserRunner.java     # Runner individual — delete-user
 src/test/java/template/user/create-user.feature       # Feature: crear usuario (POST)
 src/test/java/template/user/get-user.feature          # Feature: buscar usuario (GET)
 src/test/java/template/user/update-user.feature       # Feature: actualizar usuario (PUT)
@@ -61,7 +65,17 @@ cd karate-petstore-api-user
 .\mvnw.cmd test "-Dtest=template.user.UserRunner"
 ```
 
-### 4. Ejecutar por tags
+### 4. Ejecutar una feature individual
+
+```bash
+# Ejemplo: solo crear usuario
+.\mvnw.cmd test "-Dtest=template.user.CreateUserRunner"
+
+# Ejemplo: solo eliminar usuario
+.\mvnw.cmd test "-Dtest=template.user.DeleteUserRunner"
+```
+
+### 5. Ejecutar por tags
 
 ```bash
 # Solo pruebas @smoke
@@ -71,13 +85,13 @@ cd karate-petstore-api-user
 .\mvnw.cmd test "-Dkarate.options=--tags @regression"
 ```
 
-### 5. Ejecutar con un ambiente específico
+### 6. Ejecutar con un ambiente específico
 
 ```bash
 .\mvnw.cmd test "-Dkarate.env=qa"
 ```
 
-### 6. Ver el reporte HTML
+### 7. Ver el reporte HTML
 
 Después de ejecutar las pruebas, abrir en el navegador:
 
@@ -87,16 +101,26 @@ target/karate-reports/karate-summary.html
 
 ## Arquitectura de features
 
-El proyecto usa **5 features individuales** (uno por acción CRUD) invocados desde un **feature orquestador** mediante `call`:
+El proyecto usa **5 features standalone** (uno por acción CRUD). Cada feature es **auto-contenido**: incluye su propio setup y cleanup usando `call read()` para reutilizar `create-user.feature` como precondición.
 
 ```
-user-crud.feature (orquestador)
-  ├── call create-user.feature      → POST /user
-  ├── call get-user.feature         → GET /user/{username}
-  ├── call update-user.feature      → PUT /user/{username}
-  ├── call get-updated-user.feature → GET /user/{username}
-  └── call delete-user.feature      → DELETE /user/{username}
+create-user.feature       → POST /user (feature base, reutilizado por los demás)
+get-user.feature          → call create-user + GET /user/{username} + cleanup
+update-user.feature       → call create-user + GET userId + PUT /user/{username} + cleanup
+get-updated-user.feature  → call create-user + update inline + GET /user/{username} + cleanup
+delete-user.feature       → call create-user + DELETE /user/{username}
 ```
+
+### Runners disponibles
+
+| Runner | Alcance |
+|---|---|
+| `UserRunner` | Ejecuta todas las features del dominio |
+| `CreateUserRunner` | Solo `create-user.feature` |
+| `GetUserRunner` | Solo `get-user.feature` |
+| `UpdateUserRunner` | Solo `update-user.feature` |
+| `GetUpdatedUserRunner` | Solo `get-updated-user.feature` |
+| `DeleteUserRunner` | Solo `delete-user.feature` |
 
 ## Casos de prueba implementados
 

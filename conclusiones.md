@@ -4,8 +4,8 @@
 
 - **Feature**: CRUD de usuario en Petstore API
 - **Sub-features**: 5 (create, get, update, get-updated, delete)
-- **Resultado**: scenarios: 1 | passed: 1 | failed: 0
-- **Tiempo de ejecución**: ~3.68 segundos (tiempo de feature)
+- **Resultado**: scenarios: 5 | passed: 5 | failed: 0
+- **Tiempo de ejecución**: ~10 segundos (5 features standalone)
 - **Framework**: Karate 1.5.2 + JUnit 5 + Maven
 
 ## Hallazgos
@@ -30,17 +30,20 @@ Los endpoints `POST`, `PUT` y `DELETE` retornan el mismo schema genérico `{ cod
 
 Aunque la especificación Swagger define `api_key` como mecanismo de seguridad, la API Petstore funciona sin enviar este header. Las pruebas lo incluyen igualmente por buenas prácticas y para reflejar el contrato documentado.
 
-### 6. El patrón `call` permite features modulares y reutilizables
+### 6. El patrón `call read()` permite setup reutilizable entre features
 
-Separar cada operación CRUD en su propio `.feature` y orquestarlos desde un feature principal con `call` permite:
-- Reutilizar features individuales en otros flujos
-- Pasar parámetros dinámicos entre features (ej: `userId`, `username`)
-- Mantener cada feature enfocado en una sola responsabilidad
-- Facilitar el mantenimiento independiente de cada operación
+Usar `call read('create-user.feature')` como setup en cada feature permite:
+- Que cada feature sea **auto-contenido** y ejecutable de forma independiente
+- Reutilizar la lógica de creación sin duplicar pasos inline
+- Ejecutar features en cualquier orden sin dependencias de estado
+- Facilitar ejecución individual con runners dedicados por feature
 
-### 7. Los escenarios CRUD son inherentemente secuenciales
+### 7. Features standalone requieren setup y cleanup propios
 
-Dado que cada paso depende del anterior (no se puede buscar sin crear, no se puede actualizar sin que exista, etc.), el patrón correcto es un único Scenario en el feature orquestador que encadena las llamadas con `call`. Esto garantiza el orden de ejecución y permite compartir estado entre pasos.
+Al eliminar el feature orquestador y hacer cada feature standalone, cada uno necesita:
+- **Setup**: crear el usuario al inicio (vía `call read`)
+- **Cleanup**: eliminar el usuario al final (inline)
+- Esto garantiza que la ejecución paralela o en cualquier orden funcione correctamente
 
 ## Validaciones realizadas
 
