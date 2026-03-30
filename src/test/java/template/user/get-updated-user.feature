@@ -1,13 +1,17 @@
-@ignore
+@smoke @regression
 Feature: Buscar usuario actualizado
 
+  Background:
+    * url baseUrl
+    * header api_key = apiKey
+    * def userSchema = read('classpath:schemas/user/user-response.json')
+    * def createData = read('classpath:data/user/create-user.json')
+    * def updateData = read('classpath:data/user/update-user.json')
+
   Scenario: Verificar datos actualizados via GET /user/{username}
-    Given url baseUrl
-    And header api_key = apiKey
-    And path paths.getUser + username
+    Given path paths.getUser + createData.username
     When method get
     Then status 200
-    * def userSchema = read('classpath:schemas/user/user-response.json')
     And match response == userSchema
-    And match response.firstName == expectedFirstName
-    And match response.email == expectedEmail
+    And match response.firstName == updateData.firstName
+    And match response.email == updateData.email
