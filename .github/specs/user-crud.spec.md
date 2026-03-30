@@ -1,6 +1,6 @@
 # Spec: user-crud
 
-**Status:** `APPROVED`
+**Status:** `IMPLEMENTED`
 
 ## Definition of Ready
 
