@@ -8,6 +8,8 @@ Feature: Eliminar usuario
     * def createData = read('classpath:data/user/create-user.json')
 
   Scenario: Eliminar usuario via DELETE /user/{username}
+    * call read('create-user.feature')
+
     Given path paths.deleteUser + createData.username
     When method delete
     Then status 200

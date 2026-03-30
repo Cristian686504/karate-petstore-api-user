@@ -8,6 +8,8 @@ Feature: Buscar usuario creado
     * def createData = read('classpath:data/user/create-user.json')
 
   Scenario: Buscar usuario via GET /user/{username}
+    * call read('create-user.feature')
+
     Given path paths.getUser + createData.username
     When method get
     Then status 200
@@ -16,3 +18,6 @@ Feature: Buscar usuario creado
     And match response.firstName == createData.firstName
     And match response.lastName == createData.lastName
     And match response.email == createData.email
+
+    Given path paths.deleteUser + createData.username
+    When method delete
