@@ -6,7 +6,7 @@ function fn() {
     baseUrl: karate.properties[env + '.baseUrl']
       || karate.properties['qa.baseUrl']
       || karate.properties['baseUrl']
-      || 'http://localhost:8080',
+      || 'https://petstore.swagger.io/v2',
     auth: {
       type: karate.properties['auth.type'] || 'bearer',
       token: karate.properties['auth.token'],
@@ -16,6 +16,13 @@ function fn() {
       username: karate.properties['auth.username'],
       password: karate.properties['auth.password'],
       loginPath: karate.properties['auth.loginPath']
+    },
+    apiKey: karate.properties['api.key'] || 'special-key',
+    paths: {
+      createUser: '/user',
+      getUser: '/user/',
+      updateUser: '/user/',
+      deleteUser: '/user/'
     }
   };
 
